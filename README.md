@@ -19,17 +19,34 @@
 
 ## 📂 Estructura del repositorio
 
+```
+Por supuesto, aquí tienes la estructura de archivos en formato de árbol de texto para tu README.md, basada en la lista que me has proporcionado.
+
+Simplemente copia y pega este bloque completo en tu archivo.
+
 StatsFut/
 │
-├── assets/         # Imágenes, iconos y recursos gráficos
-├── css/            # Estilos CSS
-├── js/             # Archivos JavaScript
-├── php/            # Lógica del lado del servidor
-├── sql/            # Scripts y estructura de base de datos
-├── index.html      # Página principal
-├── README.md       # Documentación del proyecto
-└── logo.png        # Logo oficial del proyecto
-
+├── assets/
+│   ├── css/                  # Hojas de estilo CSS
+│   ├── js/                   # Scripts de JavaScript
+│   └── img/                  # Imágenes, logos y escudos
+│
+├── includes/
+│   ├── db.php                # Script de conexión a la base de datos
+│   ├── header.php            # Cabecera HTML común para las páginas
+│   └── footer.php            # Pie de página HTML común
+│
+├── index.php                 # Página de login y autenticación
+├── home.php                  # Pantalla principal o dashboard
+├── partido_nuevo.php         # Formulario para crear un nuevo partido
+├── partido.php               # Vista para registrar estadísticas en tiempo real
+├── partido_editar.php        # Formulario para editar los totales de un partido
+├── partido_finalizar.php     # Script que procesa la finalización de un partido
+├── partidos_lista.php        # Muestra el listado de todos los partidos
+├── partido_estadisticas.php  # Visualización de estadísticas y gráficas
+├── configuracion.php         # Panel para configurar datos del equipo
+└── logout.php                # Script para cerrar la sesión del usuario
+```
 
 ---
 
