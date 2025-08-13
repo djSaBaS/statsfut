@@ -95,34 +95,75 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php include __DIR__ . '/includes/header.php'; ?>
 <!-- Plantilla de cabecera con estilos y navegación común -->
 
-<div class="card" style="max-width:520px;margin:0 auto;">
-  <h1 style="margin-top:0">Bienvenido a STATSFUT</h1>
-  <p>Accede o crea tu cuenta para empezar a registrar partidos y estadísticas.</p>
+<body class="login-page d-flex align-items-center min-vh-100">
+  <div class="login-card text-center mx-auto">
+    <div class="logo-circle"></div>
+    <h1 class="mt-5">Bienvenido a STATSFUT</h1>
+    <p class="text-muted">Accede o crea tu cuenta para empezar a registrar partidos y estadísticas.</p>
 
-  <?php if ($alert): ?>
-    <!-- Mostrar alertas al usuario, tipo 'error' o 'success' -->
-    <div class="alert <?php echo e($alert['type']); ?>"><?php echo e($alert['msg']); ?></div>
-  <?php endif; ?>
+    <?php if ($alert): ?>
+      <div class="alert alert-<?php echo $alert['type']==='error'?'danger':'success'; ?> mt-3"><?php echo e($alert['msg']); ?></div>
+    <?php endif; ?>
 
-  <form id="auth-form" method="post" novalidate>
-    <?php echo csrf_field(); // Campo oculto CSRF ?>
-    <input type="hidden" name="action" id="action" value="login">
+    <form id="auth-form" method="post" class="mt-3" novalidate>
+      <?php echo csrf_field(); ?>
+      <input type="hidden" name="action" id="action" value="login">
 
-    <div class="form-row">
-      <label>Email<br>
-        <input class="input" type="email" name="email" required autocomplete="email">
-      </label>
-      <label>Contraseña<br>
-        <input class="input" type="password" name="password" required minlength="8" autocomplete="current-password">
-      </label>
-    </div>
+      <div class="mb-3 text-start">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" name="email" required autocomplete="email">
+      </div>
+      <div class="mb-2 text-start">
+        <label class="form-label">Contraseña</label>
+        <input type="password" class="form-control" name="password" required minlength="8" autocomplete="current-password">
+      </div>
 
-    <div class="form-actions" style="margin-top:1rem;">
-      <button class="btn primary" type="submit">Entrar</button>
-      <button class="btn link" id="toggle-mode" type="button">Crear cuenta</button>
-    </div>
-  </form>
-</div>
+      <div class="d-grid gap-2 mt-3">
+        <button class="btn btn-success" type="submit" id="login-btn">Entrar</button>
+        <button class="btn btn-link" id="toggle-mode" type="button">Crear cuenta</button>
+      </div>
+    </form>
+  </div>
+  <script>
+    /**
+     * Script de interacción del formulario de login/registro
+     * - Permite alternar entre modo login y registro
+     * - Añade animación de balón al enviar el formulario
+     */
+    (function() {
+      const form = document.getElementById('auth-form');
+      if (!form) return; // Salir si no existe el formulario
+  
+      const action = document.getElementById('action');       // Input oculto que indica la acción: login o register
+      const toggle = document.getElementById('toggle-mode'); // Botón para alternar entre login y registro
+      const submitBtn = document.getElementById('login-btn'); // Botón principal de envío
+   
+      // ==============================
+      // Alternar entre login y registro
+      // ==============================
+      toggle?.addEventListener('click', () => {
+        const isLogin = action.value === 'login';
+        action.value = isLogin ? 'register' : 'login'; // Cambia la acción
+        toggle.textContent = isLogin ? 'Ya tengo cuenta' : 'Crear cuenta'; // Cambia texto del toggle
+        submitBtn.textContent = isLogin ? 'Crear cuenta' : 'Entrar';       // Cambia texto del botón de envío
+      });
+   
+      // ==============================
+      // Animación al enviar formulario
+      // ==============================
+      form.addEventListener('submit', (e) => {
+        if (!form.checkValidity()) return; // Dejar que el navegador valide primero
+    
+        e.preventDefault(); // Evitar envío inmediato para mostrar animación
+    
+        // Activar animación de balón en el botón
+        submitBtn.classList.add('ball-anim');
+    
+        // Enviar formulario tras ~0.9s para que se vea la animación completa
+        setTimeout(() => form.submit(), 900);
+      });
+    })();
+ </script>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
 <!-- Plantilla de pie de página común con scripts y cierre de HTML -->
