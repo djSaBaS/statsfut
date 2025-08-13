@@ -1,6 +1,6 @@
 # ⚽ StatsFut
 
-![StatsFut Logo](./logo.png)
+![StatsFut Logo](https://github.com/djSaBaS/statsfut/blob/main/assets/img/logo.png)
 
 📊 **StatsFut** es una plataforma web diseñada para **gestionar, registrar y analizar estadísticas de partidos de fútbol** de manera sencilla y visual. Ideal para equipos, entrenadores y aficionados que quieren llevar un control detallado de su rendimiento.
 
