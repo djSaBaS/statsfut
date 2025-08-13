@@ -1,34 +1,31 @@
-/**
- * Script de animación y manejo del formulario de login
- * ----------------------------------------------------
- * Este script se encarga de:
- * 1. Interceptar el envío del formulario para evitar el comportamiento por defecto.
- * 2. Aplicar una animación visual al botón de "Enviar" simulando que se convierte en
- *    una pelota de fútbol que rueda hacia la derecha.
- * 3. Redirigir al usuario a la pantalla principal tras finalizar la animación.
- * 
- * Requiere que en el CSS exista:
- *  - Una clase `.ball` para cambiar el estilo del botón a forma de balón.
- *  - Una animación `@keyframes roll` para simular el rodar.
- */
+(() => {
+  // Obtener referencia al formulario de autenticación
+  const form = document.getElementById('auth-form');
+  
+  // Salir si el formulario no existe para evitar errores
+  if (!form) return;
 
-// Asociamos un listener al evento "submit" del formulario con ID "loginForm"
-document.getElementById("loginForm").addEventListener("submit", function (e) {
-    // Evita que el formulario se envíe de forma tradicional y recargue la página
-    e.preventDefault();
+  // Referencia al campo oculto que indica la acción actual: 'login' o 'register'
+  const action = document.getElementById('action');
 
-    // Obtenemos la referencia al botón de login
-    const btn = document.getElementById("loginBtn");
+  // Botón que permite alternar entre los modos de login y registro
+  const toggle = document.getElementById('toggle-mode');
 
-    // Añadimos la clase "ball" para aplicar el estilo visual de pelota
-    btn.classList.add("ball");
+  // Configurar el comportamiento al hacer clic en el botón de alternar
+  toggle?.addEventListener('click', () => {
+    // Determinar si el formulario está actualmente en modo login
+    const isLogin = action.value === 'login';
 
-    // Iniciamos la animación CSS "roll" con duración de 1 segundo y avance hacia delante
-    btn.style.animation = "roll 1s forwards";
+    // Alternar el valor del input 'action' según el modo actual
+    // Login -> Register, Register -> Login
+    action.value = isLogin ? 'register' : 'login';
 
-    // Tras 1 segundo (duración de la animación), redirigimos al usuario
-    // En este punto, se podría sustituir la redirección por una validación real en PHP
-    setTimeout(() => {
-        window.location.href = "home.php";
-    }, 1000);
-});
+    // Actualizar el texto del botón de alternar para reflejar la acción contraria
+    // Proporciona indicación clara al usuario sobre la acción disponible
+    toggle.textContent = isLogin ? 'Ya tengo cuenta' : 'Crear cuenta';
+
+    // Actualizar el texto del botón de envío para reflejar la acción actual
+    // Login -> 'Crear cuenta', Register -> 'Entrar'
+    form.querySelector('button[type="submit"]').textContent = isLogin ? 'Crear cuenta' : 'Entrar';
+  });
+})();
