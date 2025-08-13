@@ -1,0 +1,141 @@
+/* ==============================
+   Variables de tema (colores)
+   ============================== */
+:root {
+  --bg: #0b1220;        /* Color de fondo principal de la app */
+  --card: #121a2b;      /* Color de fondo de tarjetas y paneles */
+  --text: #eaf1ff;      /* Color de texto principal */
+  --muted: #9db3d1;     /* Texto secundario / deshabilitado */
+  --accent: #29b36b;    /* Color de acento para botones y elementos destacados */
+  --danger: #ff5a5f;    /* Color de alerta / error */
+}
+
+/* ==============================
+   Reset y configuración base
+   ============================== */
+* { box-sizing: border-box; }          /* Inclusión de padding y border en el tamaño total */
+html, body { height: 100%; }          /* Para que contenedores full-height funcionen */
+body {
+  margin: 0;
+  font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ==============================
+   Contenedores y layout
+   ============================== */
+.sf-container {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.sf-header {
+  background: var(--card);
+  border-bottom: 1px solid #223;
+}
+
+.sf-header .brand {
+  font-weight: 700;                  /* Marca o nombre destacado */
+}
+
+.sf-header nav a {
+  color: var(--muted);
+  margin-right: 1rem;
+  text-decoration: none;
+}
+
+.sf-header nav a.logout {
+  color: var(--danger);              /* Enlaces de salida / logout en rojo */
+}
+
+.sf-main {
+  padding: 2rem 1rem;                 /* Espaciado interno principal */
+}
+
+/* ==============================
+   Tarjetas y bloques
+   ============================== */
+.card {
+  background: var(--card);
+  border: 1px solid #223;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+/* ==============================
+   Inputs y formularios
+   ============================== */
+.input {
+  width: 100%;
+  padding: .75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #2a3750;
+  background: #0f1726;
+  color: var(--text);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: .75rem;                        /* Separación entre campos */
+}
+
+.form-actions {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+  justify-content: space-between;     /* Botones alineados y separados */
+}
+
+/* ==============================
+   Botones
+   ============================== */
+.btn {
+  display: inline-block;
+  padding: .75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #2a3750;
+  background: #16243b;
+  color: var(--text);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn.primary {
+  background: var(--accent);           /* Botón principal destacado */
+  border-color: #1d8550;
+  color: #04120a;
+  font-weight: 700;
+}
+
+.btn.link {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ==============================
+   Alertas
+   ============================== */
+.alert {
+  padding: .75rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}
+
+.alert.error {
+  background: #36141a;
+  border: 1px solid #61232d;
+  color: #ffb3b7;                     /* Mensajes de error */
+}
+
+.alert.success {
+  background: #163624;
+  border: 1px solid #2c6648;
+  color: #b2f1d0;                     /* Mensajes de éxito */
+}
