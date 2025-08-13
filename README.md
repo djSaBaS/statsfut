@@ -20,15 +20,13 @@
 ## 📂 Estructura del repositorio
 
 ```
-Por supuesto, aquí tienes la estructura de archivos en formato de árbol de texto para tu README.md, basada en la lista que me has proporcionado.
-
-Simplemente copia y pega este bloque completo en tu archivo.
-
 StatsFut/
 │
 ├── assets/
 │   ├── css/                  # Hojas de estilo CSS
+│   │   ├── styles.css 
 │   ├── js/                   # Scripts de JavaScript
+│   │   ├── login.js 
 │   └── img/                  # Imágenes, logos y escudos
 │
 ├── includes/
