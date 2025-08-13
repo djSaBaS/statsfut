@@ -1,91 +1,128 @@
 <?php
-// index.php
-session_start();
-if (isset($_SESSION['user_id'])) {
-    header("Location: home.php");
-    exit();
+// Incluir configuración y conexión a la base de datos
+require_once __DIR__ . '/includes/db.php';
+
+// Si el usuario ya está logado, redirigir directamente al home
+if (!empty($_SESSION['user_id'])) {
+    header('Location: home.php');
+    exit;
+}
+
+// Variable para mensajes de alerta al usuario (errores o información)
+$alert = null;
+
+// Procesar el formulario solo si es una solicitud POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? ''; // Puede ser 'login' o 'register'
+    $csrf   = $_POST['csrf'] ?? '';   // Token CSRF para seguridad
+
+    // Validación CSRF para prevenir ataques de falsificación de solicitudes
+    if (!csrf_validate($csrf)) {
+        $alert = ['type' => 'error', 'msg' => 'Token CSRF inválido. Recarga la página.'];
+    } else {
+        // Normalizar y sanitizar entradas del usuario
+        $email = trim((string)($_POST['email'] ?? ''));
+        $pass  = (string)($_POST['password'] ?? '');
+
+        // Validaciones básicas de formato
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $alert = ['type' => 'error', 'msg' => 'Introduce un email válido.'];
+        } elseif (strlen($pass) < 8) {
+            $alert = ['type' => 'error', 'msg' => 'La contraseña debe tener al menos 8 caracteres.'];
+        } else {
+            // Hash del email para búsqueda segura en la base de datos
+            $email_h = email_hash($email);
+
+            try {
+                if ($action === 'register') {
+                    // Registro de usuario
+                    $stmt = $pdo->prepare('SELECT id FROM users WHERE email_hash = ? LIMIT 1');
+                    $stmt->execute([$email_h]);
+
+                    if ($stmt->fetch()) {
+                        // Si el email ya existe, mostrar error
+                        $alert = ['type' => 'error', 'msg' => 'Ya existe una cuenta con ese email.'];
+                    } else {
+                        // Encriptar email y generar hash de la contraseña
+                        $email_enc = sf_encrypt($email, $ENC_KEY);
+                        $pwd_hash  = password_hash($pass, PASSWORD_DEFAULT);
+
+                        // Insertar nuevo usuario en la base de datos
+                        $stmt = $pdo->prepare('INSERT INTO users (email_hash, email_enc, password_hash, created_at) VALUES (?,?,?,NOW())');
+                        $stmt->execute([$email_h, $email_enc, $pwd_hash]);
+
+                        // Autologin tras registro y regeneración de sesión para seguridad
+                        $_SESSION['user_id'] = (int)$pdo->lastInsertId();
+                        session_regenerate_id(true);
+
+                        header('Location: home.php');
+                        exit;
+                    }
+
+                } elseif ($action === 'login') {
+                    // Inicio de sesión
+                    $stmt = $pdo->prepare('SELECT id, email_enc, password_hash FROM users WHERE email_hash = ? LIMIT 1');
+                    $stmt->execute([$email_h]);
+                    $user = $stmt->fetch();
+
+                    // Mitigación de enumeración de usuarios usando un hash falso
+                    $fake_hash = '$2y$10$abcdefghijklmnopqrstuv12345678901234567890123456789012';
+                    $hash_to_verify = $user['password_hash'] ?? $fake_hash;
+
+                    if (password_verify($pass, $hash_to_verify) && $user) {
+                        // Credenciales correctas: iniciar sesión y regenerar ID de sesión
+                        $_SESSION['user_id'] = (int)$user['id'];
+                        session_regenerate_id(true);
+
+                        header('Location: home.php');
+                        exit;
+                    } else {
+                        // Retardo pequeño para dificultar ataques de fuerza bruta
+                        usleep(300000); // 300ms
+                        $alert = ['type' => 'error', 'msg' => 'Credenciales no válidas.'];
+                    }
+                }
+            } catch (Throwable $t) {
+                // Captura y log de errores internos, sin exponer detalles al usuario
+                error_log('[STATSFUT][AUTH] ' . $t->getMessage());
+                $alert = ['type' => 'error', 'msg' => 'Ha ocurrido un error inesperado.'];
+            }
+        }
+    }
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StatsFut - Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: url('assets/img/campo_futbol.jpg') no-repeat center center fixed;
-            background-size: cover;
-        }
-        .login-box {
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 2rem;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
-        }
-        .logo-circle {
-            width: 100px;
-            height: 100px;
-            background-color: white;
-            border-radius: 50%;
-            margin: -70px auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-        }
-        .logo-circle img {
-            width: 80%;
-        }
-        /* Animación botón */
-        .btn-football {
-            transition: all 0.5s ease;
-        }
-        .btn-football.animate {
-            background-image: url('assets/img/ball.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            color: transparent;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            transform: translateX(400px) rotate(720deg);
-        }
-    </style>
-</head>
-<body>
-    <div class="container vh-100 d-flex justify-content-center align-items-center">
-        <div class="login-box position-relative">
-            <div class="logo-circle">
-                <img src="assets/img/logo_statsfut.png" alt="Logo StatsFut">
-            </div>
-            <h3 class="mb-4">Iniciar Sesión</h3>
-            <form method="POST" action="login.php" id="loginForm">
-                <div class="mb-3">
-                    <input type="text" name="username" class="form-control" placeholder="Usuario" required>
-                </div>
-                <div class="mb-3">
-                    <input type="password" name="password" class="form-control" placeholder="Contraseña" required>
-                </div>
-                <button type="submit" class="btn btn-danger w-100 btn-football">Entrar</button>
-            </form>
-        </div>
+<?php include __DIR__ . '/includes/header.php'; ?>
+<!-- Plantilla de cabecera con estilos y navegación común -->
+
+<div class="card" style="max-width:520px;margin:0 auto;">
+  <h1 style="margin-top:0">Bienvenido a STATSFUT</h1>
+  <p>Accede o crea tu cuenta para empezar a registrar partidos y estadísticas.</p>
+
+  <?php if ($alert): ?>
+    <!-- Mostrar alertas al usuario, tipo 'error' o 'success' -->
+    <div class="alert <?php echo e($alert['type']); ?>"><?php echo e($alert['msg']); ?></div>
+  <?php endif; ?>
+
+  <form id="auth-form" method="post" novalidate>
+    <?php echo csrf_field(); // Campo oculto CSRF ?>
+    <input type="hidden" name="action" id="action" value="login">
+
+    <div class="form-row">
+      <label>Email<br>
+        <input class="input" type="email" name="email" required autocomplete="email">
+      </label>
+      <label>Contraseña<br>
+        <input class="input" type="password" name="password" required minlength="8" autocomplete="current-password">
+      </label>
     </div>
 
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            let btn = document.querySelector('.btn-football');
-            btn.classList.add('animate');
-            setTimeout(() => {
-                this.submit();
-            }, 800);
-        });
-    </script>
-</body>
-</html>
+    <div class="form-actions" style="margin-top:1rem;">
+      <button class="btn primary" type="submit">Entrar</button>
+      <button class="btn link" id="toggle-mode" type="button">Crear cuenta</button>
+    </div>
+  </form>
+</div>
+
+<?php include __DIR__ . '/includes/footer.php'; ?>
+<!-- Plantilla de pie de página común con scripts y cierre de HTML -->
