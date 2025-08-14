@@ -108,3 +108,13 @@ CREATE TABLE IF NOT EXISTS goals (
   INDEX idx_goals_match (match_id, team_side),
   CONSTRAINT fk_goals_match FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 9) Control de reloj por partido/parte
+CREATE TABLE IF NOT EXISTS match_clock (
+  match_id          INT UNSIGNED NOT NULL PRIMARY KEY,      -- referencia 1:1 con el partido
+  current_half      TINYINT UNSIGNED NOT NULL DEFAULT 1,    -- parte actual (1..N)
+  is_running        TINYINT(1) NOT NULL DEFAULT 0,          -- 1 si el tiempo corre
+  seconds_in_half   INT UNSIGNED NOT NULL DEFAULT 0,        -- segundos acumulados en la parte actual (pausado)
+  last_started_at   DATETIME DEFAULT NULL,                  -- cuándo se inició el último conteo (si is_running=1)
+  CONSTRAINT fk_clock_match FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
