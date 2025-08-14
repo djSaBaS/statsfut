@@ -127,6 +127,7 @@ include __DIR__ . '/includes/header.php';
       <a class="btn btn-success" href="?id=<?php echo (int)$match_id; ?>&export=csv&type=totals">Exportar CSV (totales)</a>
       <a class="btn btn-info text-white" href="?id=<?php echo (int)$match_id; ?>&export=csv&type=events">Exportar CSV (eventos)</a>
       <a class="btn btn-warning" href="partido_editar.php?id=<?php echo (int)$match_id; ?>">Editar totales</a>
+      <a class="btn btn-primary" href="partido_pdf.php?id=<?php echo (int)$match_id; ?>" target="_blank">Imprimir / PDF</a>
     </div>
   </div>
 
